@@ -11,15 +11,16 @@ pwdReqRegex str = str =~ "([0-9]+)-([0-9]+) ([a-z]): ([a-z]+)"
 
 type RuleFunc = (Char -> Int -> Int -> String -> Bool)
 
--- Test that the password meets the rule defined by the smallest and largest number the given
--- letter can occur
+-- Part 1 test: character c appears in pwd between low and high times
 meetsRule :: RuleFunc
 meetsRule c low high pwd =
     between . length $ filter (== c) pwd
     where
         between n = low <= n && n <= high
 
-meetsRule2 :: Char -> Int -> Int -> String -> Bool
+-- Part 2 test: character c appears at position low or position high, but not both
+-- Positions start at 1
+meetsRule2 :: RuleFunc
 meetsRule2 c low high pwd = (l == c || h == c) && (l /= h)
     where
         l = pwd !! (low - 1)
