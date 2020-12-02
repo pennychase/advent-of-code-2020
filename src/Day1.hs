@@ -21,7 +21,7 @@ findSumEq n x xs =
 
 main :: IO ()
 main = do
-    contents <- readFile "day-1-input.txt"
+    contents <- readFile "./test/data/day-1-input.txt"
     let nums = map readInt $ lines contents
     -- Part 1
     let result = findSumEq 2 2020 nums
