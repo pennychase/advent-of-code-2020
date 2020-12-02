@@ -1,6 +1,6 @@
 module Day2 where
 
-import Text.Regex.TDFA
+import Text.Regex.TDFA ( (=~) )
 
 readInt :: String -> Int
 readInt = read
@@ -26,7 +26,7 @@ meetsRule2 c low high pwd = (l == c || h == c) && (l /= h)
         l = pwd !! (low - 1)
         h = pwd !! (high - 1)
 
--- Applies meetsRule to regex output
+-- Applies rule to single regex output
 matchOne :: RuleFunc -> (String, String, String, [String]) -> Bool
 matchOne f (_,_,_,[l,h,c,s]) = f (head c) (readInt l) (readInt h) s
 
@@ -34,7 +34,10 @@ main :: IO ()
 main = do
     contents <- readFile "./test/data/day-2-input.txt"
     let regexes = map pwdReqRegex $ lines contents
+    -- Part 1
     let matches1 = filter (matchOne meetsRule) regexes
+    putStrLn $ "Number of part 1 matches: " ++ show (length matches1)
+    -- Part 2
     let matches2 = filter (matchOne meetsRule2) regexes
-    print $ length matches1
-    print $ length matches2
+    putStrLn $ "Number of part 2 matches: " ++ show (length matches2)
+
