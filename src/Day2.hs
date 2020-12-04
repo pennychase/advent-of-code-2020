@@ -1,6 +1,6 @@
 module Day2 where
 
-import Text.Regex.TDFA 
+import Text.Regex.TDFA ( (=~) ) 
 
 readInt :: String -> Int
 readInt = read
