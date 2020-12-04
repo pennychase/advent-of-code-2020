@@ -36,6 +36,8 @@ library
   build-depends:
       base >=4.7 && <5
     , regex-tdfa
+    , containers
+    , extra
   default-language: Haskell2010
 
 executable advent-of-code-yr2020-exe
