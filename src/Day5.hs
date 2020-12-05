@@ -4,7 +4,7 @@ import Data.List ( sort )
 
 -- pred determines which half is searched: if predicate is true, use the lower half
 binarySearch :: (Char -> Bool) -> Int -> Int -> [Char] -> Int
-binarySearch pred low high [] = low
+binarySearch _ low _ [] = low
 binarySearch pred low high (x:xs) =
     if pred x
         then binarySearch pred low mid xs
@@ -25,13 +25,16 @@ part1 :: [String] -> Int
 part1 seats = maximum $ map findSeat seats
 
 -- Find the one empty seat by sorting the list of seats and then doing a linear search
-part2 :: [String] -> Int
-part2 seats = findGap (head seats') (tail seats') 
+findGap :: [String] -> Int
+findGap seats = findGap' (head seats') (tail seats')
     where
         seats' = sort $ map findSeat seats
-        findGap cur [] = cur
-        findGap cur (x:xs) =
-            if x - cur > 1 then cur + 1 else findGap x xs
+        findGap' cur [] = cur
+        findGap' cur (x:xs) =
+            if x - cur > 1 then cur + 1 else findGap' x xs
+
+part2 :: [String] -> Int
+part2 seats = findGap seats
 
 main :: IO ()
 main = do
