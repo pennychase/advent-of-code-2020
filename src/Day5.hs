@@ -1,8 +1,8 @@
 module Day5 where
 
-import Data.List
+import Data.List ( sort )
 
--- pred determines which half is searched: if true, the lower half
+-- pred determines which half is searched: if predicate is true, use the lower half
 binarySearch :: (Char -> Bool) -> Int -> Int -> [Char] -> Int
 binarySearch pred low high [] = low
 binarySearch pred low high (x:xs) =
@@ -11,6 +11,9 @@ binarySearch pred low high (x:xs) =
         else binarySearch pred  (mid + 1) high xs
     where mid = (low + high) `div` 2
 
+-- Use binarySearch with appropriate predicates to find the seat row and column
+-- For rows, input is F for lower hald and B for upper half, so test =='F'
+-- For columns, input is L for lower half and R for upper half, so test =='L'
 findSeat :: String -> Int
 findSeat xs =
     binarySearch (=='F') 0 127 rows * 8 + binarySearch (=='L') 0 7 cols
@@ -21,6 +24,7 @@ findSeat xs =
 part1 :: [String] -> Int
 part1 seats = maximum $ map findSeat seats
 
+-- Find the one empty seat by sorting the list of seats and then doing a linear search
 part2 :: [String] -> Int
 part2 seats = findGap (head seats') (tail seats') 
     where
