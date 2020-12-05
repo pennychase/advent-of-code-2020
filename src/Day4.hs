@@ -6,8 +6,28 @@ import qualified Data.Map as M
 import Data.Maybe ( mapMaybe, fromJust )
 import Text.Regex.TDFA( (=~) )
 
--- splits a list based on a predicate into two lists,
--- discarding the element that passed the test (the head of the second list)
+--
+-- Global data
+--
+
+-- The fields that must be present (part 1 and part 2) and validated (part 2)
+requiredFields :: [String]
+requiredFields = ["ecl","eyr","hcl","hgt", "byr","iyr","pid"]
+
+-- Map of validation functions
+validationMap :: M.Map String (String -> Bool)
+validationMap = 
+    M.fromList $ zip requiredFields [ validateEyeColor
+                                    , validateExpirationYear
+                                    , validateHairColor
+                                    , validateHeight
+                                    , validateBirthYear
+                                    , validateIssueYear
+                                    , validatePassportID
+                                    ]
+
+-- splits a list based on a predicate into two lists, discarding the element that 
+-- passed the test (the head of the second list)
 break' :: (a -> Bool) -> [a] -> ([a], [a])
 break' p xs = 
     case break p xs of
@@ -21,16 +41,15 @@ splitList p xs = first:splitList p rest
     where
         (first, rest) = break' p xs
 
--- makes the input for all the passports from the list of lines in the input file
--- each passport is separated by a blank line, and the passport input can be on one or
--- multiple lines
+-- Makes the input for all the passports from the list of lines in the input file.
+-- Each passport is separated by a blank line, and the passport input can be on one or
+-- multiple lines. After applying lines to the file input, the blank line are empty strings,
+-- and each passport is a list of one or more strings (one for each line), thus use
+-- concatMap to make a single list of the field:value inputs.
 makeInput :: [String] -> [[String]]
 makeInput strs = map makeOne $ splitList (=="") strs
     where 
         makeOne xs = concatMap words xs
-
-requiredFields :: [String]
-requiredFields = ["ecl","eyr","hcl","hgt", "byr","iyr","pid"]
         
 makePassport :: [String] -> M.Map String String
 makePassport strs = M.fromList input
@@ -89,18 +108,6 @@ validateHairColor haircolor =
 
 validateEyeColor :: String -> Bool
 validateEyeColor eyecolor = eyecolor =~ "amb|blu|brn|gry|grn|hzl|oth" :: Bool
-
--- Map of validation functions
-validationMap :: M.Map String (String -> Bool)
-validationMap = 
-    M.fromList $ zip requiredFields [ validateEyeColor
-                                    , validateExpirationYear
-                                    , validateHairColor
-                                    , validateHeight
-                                    , validateBirthYear
-                                    , validateIssueYear
-                                    , validatePassportID
-                                    ]
 
 -- validate field by applying the validation function (looked up in validationMap) to the 
 -- value in the passport Map
