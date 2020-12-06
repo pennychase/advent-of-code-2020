@@ -7,7 +7,7 @@ import Lib ( splitList )
 
 -- Part 1
 -- Since we want to count the number of questions answered by any person, all we're interested in 
--- is the number of keys in the map (each represents an answer answered by one or more people)
+-- is the number of keys in the map (each represents a question answered by one or more people)
 mkCounter :: String -> M.Map Char Int
 mkCounter xs = M.fromList $ zip xs (repeat 0)
 
