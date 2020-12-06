@@ -6,6 +6,8 @@ import qualified Data.Map as M
 import Data.Maybe ( mapMaybe, fromJust )
 import Text.Regex.TDFA( (=~) )
 
+import Lib ( break', splitList )
+
 --
 -- Global data
 --
@@ -26,20 +28,6 @@ validationMap =
                                     , validatePassportID
                                     ]
 
--- splits a list based on a predicate into two lists, discarding the element that 
--- passed the test (the head of the second list)
-break' :: (a -> Bool) -> [a] -> ([a], [a])
-break' p xs = 
-    case break p xs of
-        (f, []) -> (f, [])
-        (f, r) -> (f, tail r)
-
--- splits a list into multiple lists using break'
-splitList  :: (a -> Bool) -> [a] -> [[a]]
-splitList _ [] = []
-splitList p xs = first:splitList p rest
-    where
-        (first, rest) = break' p xs
 
 -- Makes the input for all the passports from the list of lines in the input file.
 -- Each passport is separated by a blank line, and the passport input can be on one or
