@@ -11,6 +11,7 @@ import Text.Megaparsec ( Parsec, (<|>) )
 import qualified Text.Megaparsec as M
 import qualified Text.Megaparsec.Char as M
 
+-- Data types and constructors for the computer
 
 data OpCode = Nop | Jmp | Acc
     deriving (Show, Eq)
@@ -22,9 +23,10 @@ data Instruction =
                 }
                 deriving Show
 
+-- Default instruction (visited is False)
 defInstruction :: Instruction
 defInstruction = Instruction Nop 0 False
-
+-- Smart constructor that changes default values for opCode and arg
 mkInstruction :: OpCode -> Int -> Instruction
 mkInstruction op a = defInstruction { opCode = op, arg = a}
 
@@ -34,6 +36,16 @@ data Computer =
              , memory :: Map Int Instruction
              }
         deriving Show
+
+mkComputer :: Text -> Computer
+mkComputer input =
+    Computer 0 0 (Map.fromList $ zip (cycle [0..]) instrs)
+    where
+        instrs = case M.runParser parseInstructions "" input of
+            Left s -> error (show s)
+            Right instrs -> instrs
+
+-- Parser
 
 type MParser = Parsec Void Text
 
@@ -72,26 +84,10 @@ numberParser = read <$>
         positiveParser= M.try $ do
             M.char '+'
             integerParser
- 
-mkComputer :: Text -> Computer
-mkComputer input =
-    Computer 0 0 (Map.fromList $ zip (cycle [0..]) instrs)
-    where
-        instrs = case M.runParser parseInstructions "" input of
-            Left s -> error (show s)
-            Right instrs -> instrs
 
+-- Executing the computer
 
-changeInstr :: Computer -> Int -> Computer
-changeInstr comp index = 
-    case Map.lookup index (memory comp) of
-        Nothing -> error ("Illegal memory address: " ++ show index)
-        (Just instr) -> case opCode instr of
-            Jmp -> comp { memory = Map.insert index (instr { opCode = Nop }) (memory comp)  }
-            Nop -> comp { memory = Map.insert index (instr { opCode = Jmp}) (memory comp)  }
-            _   -> comp
-
-
+-- Execute the program in memory for part 1 (find loops) and part 2 (find termination)
 step :: Computer -> (String, Computer)
 step comp =
     case Map.lookup (pc comp) (memory comp) of
@@ -108,7 +104,17 @@ step comp =
             Jmp -> c { pc = pc c + arg i }
             Acc -> c { pc = pc c + 1, acc = acc c + arg i }
         updateMem c i  = c { memory = Map.insert (pc c) i { visited = True } (memory comp) }
-            
+
+ -- For part 2 - swap single nop and jmp           
+changeInstr :: Computer -> Int -> Computer
+changeInstr comp index = 
+    case Map.lookup index (memory comp) of
+        Nothing -> error ("Illegal memory address: " ++ show index)
+        (Just instr) -> case opCode instr of
+            Jmp -> comp { memory = Map.insert index (instr { opCode = Nop }) (memory comp)  }
+            Nop -> comp { memory = Map.insert index (instr { opCode = Jmp}) (memory comp)  }
+            _   -> comp
+
 
 part1 :: Text -> (String, Computer)
 part1 input = step (mkComputer input)
