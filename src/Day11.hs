@@ -4,6 +4,8 @@ import Data.Map ( Map )
 import qualified Data.Map as M
 import Data.Maybe ( mapMaybe )
 
+-- Solution using Map to represent the floor
+
 type Floor = Map (Int, Int) Char
 
 mkFloor :: [String] -> Floor
@@ -39,7 +41,7 @@ newValue i floor =
         Just '.' -> '.'
         Just 'L' -> occupySeat i floor
         Just '#' -> emptySeat i floor
-
+   
 newFloor :: Floor -> Floor
 newFloor floor =
     M.fromList $ zip indices newValues
@@ -49,17 +51,14 @@ newFloor floor =
 
 step :: Floor -> Floor
 step floor 
-    | floor' == floor = floor
+    | floor == floor' = floor
     | otherwise = step floor'
     where
         floor' = newFloor floor
 
 part1 :: [String] -> Int
 part1 input =
-    length (filter (== '#') (M.elems stable))
-    where
-        stable = step (mkFloor input)
-  
+    M.size . M.filter (== '#') $ step (mkFloor input)
 
 main :: IO ()
 main = do
