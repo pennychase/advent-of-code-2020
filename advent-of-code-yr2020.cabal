@@ -39,8 +39,10 @@ library
     , extra
     , text
     , megaparsec
+    , parser-combinators
     , multiset
     , vector
+    , split
   default-language: Haskell2010
 
 executable advent-of-code-yr2020-exe
