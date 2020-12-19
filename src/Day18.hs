@@ -41,6 +41,7 @@ integer :: Parser Integer
 integer = lexeme L.decimal
 
 -- Parsers for Part 1
+-- Mul and Add have the same precedence
 
 -- Parse Expression
 -- Use Megaparsec expression parser builder
@@ -63,6 +64,8 @@ parseExprs :: Parser [Expr]
 parseExprs = many expr
 
 -- Parsers for Part 2
+-- Add has higher precedence than Mul. The only change to the parsers is the
+-- operator table: instead of a single row, split into two rows with Add first
 
 -- Parse Expression
 -- Use Megaparsec expression parser builder
@@ -83,6 +86,7 @@ term2 = parens expr2
 -- Parse Exprs
 parseExprs2 :: Parser [Expr]
 parseExprs2 = many expr2
+
 --
 -- Evaluate Exprs
 --
