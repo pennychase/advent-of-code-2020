@@ -2,26 +2,36 @@ module Day17 where
 
 import Data.Map (Map)
 import qualified Data.Map as M
-import Data.List
-import Control.Monad
+import Data.List ( delete )
+import Control.Monad ( replicateM )
 
 
-initialize :: [String] -> Map [Int] Char
-initialize lines =
-    M.fromList $ zip indices (cycle cells)
+-- Initialize the Map 
+-- The input is a 2 dimensional slice of the n-dimensional grid (so the coordinates of the other dimensions 
+-- of the slice are 0)
+initialize :: Int -> [String] -> Map [Int] Char
+initialize ndims lines =
+    M.fromList $ zip indices cells
     where
         n = length lines
-        indices = [[x,y,0] | x <- [0 .. n-1], y <- [0 .. n-1]]
-        cells = concat lines
+        indices = map (++ replicate (ndims-2) 0) (replicateM 2 [0 .. n-1])
+        cells = (concat lines) ++ (repeat '.')
 
+-- Create the neighbors of the given cell, removing the cell itself
 neighbors :: [Int] -> [[Int]]
-neighbors [x,y,z] = delete [x,y,z] (map (\[i,j,k] -> [x+i, y+j, z+k]) $ replicateM 3 [-1,0,1])
+neighbors cell = delete cell $ mapM (\x -> map (x +) [-1,0,1]) cell
 
+-- Get the cells to be examined: these are the cells in the map plus the bordering cells (empty but candidates
+-- to be filled in the current step)
 getCells :: Map [Int] Char -> [[Int]]
-getCells m = [[x,y,z] | x <- [x1-1 .. x2+1], y <- [y1-1 .. y2+1], z <- [z1-1 .. z2+1]]
+getCells m =  
+    sequence $ mkLists low high  
     where
-        [x1,y1,z1] = minimum $ M.keys m
-        [x2,y2,z2] = maximum $ M.keys m
+        low = minimum $ M.keys m
+        high = maximum $ M.keys m
+        mkLists [] _ = []
+        mkLists _ [] = []
+        mkLists (l:ls) (h:hs) = [l-1 .. h+1] : mkLists ls hs
 
 newCell :: [Int] -> Map [Int] Char -> ([Int], Char)
 newCell cell m = (cell, new)
@@ -42,10 +52,16 @@ step m = M.fromList (go cells [])
 part1 :: String -> Int
 part1 input = length $ filter (=='#') (M.elems m)
     where
-        m = iterate step (initialize (lines input)) !! 6
+        m = iterate step (initialize 3 (lines input)) !! 6
+
+part2 :: String -> Int
+part2 input = length $ filter (=='#') (M.elems m)
+    where
+        m = iterate step (initialize 4 (lines input)) !! 6
 
 main :: IO ()
 main = do
     contents <- readFile "./test/data/day-17-input.txt"
     print $ part1 contents
+    print $ part2 contents
     
