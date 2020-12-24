@@ -50,6 +50,11 @@ playGame (player1, player2) = loop (player1, player2)
             in sum $ Seq.zipWith (*) deck (Seq.fromList [n, n-1 .. 1])
 
 -- Part 2: Recursive Combat
+
+-- playRound plays a round:
+-- If the hand has already been seen, player1 wins
+-- If there are enough cards in both decks, play a recursive game (top cards determine how many cards in decks)
+-- Otherwise the player with highest card wins
 playRound2 :: Round -> Round
 playRound2 rnd 
     | handSeen rnd                         = rnd { player2 = Seq.empty }
@@ -61,16 +66,20 @@ playRound2 rnd
         c2:<|c2s = player2 rnd
         (winner, _) = gameLoop rnd { history = M.empty, player1 = Seq.take c1 c1s, player2 = Seq.take c2 c2s }
  
-playGame2 :: Round -> Int
-playGame2 round = 
+-- the top-level game: creates the initial round, runs gameLoop until there's a winner
+-- and computes the answer (weighted sum of winner's deck)
+playGame2 :: Deck -> Deck  -> Int
+playGame2 deck1 deck2 = 
     case gameLoop round of
         (Player1, rnd) -> sumDeck (player1 rnd)
         (Player2, rnd) -> sumDeck (player2 rnd)
     where
+        round = Round M.empty deck1 deck2
         sumDeck deck = 
             let n = Seq.length deck
             in sum $ Seq.zipWith (*) deck (Seq.fromList [n, n-1 .. 1])
 
+-- gameLoop is used both in the top-level game and the recursive sub-games
 gameLoop :: Round -> (Winner, Round)
 gameLoop round = loop round
     where
@@ -100,14 +109,17 @@ updateRound (winner, rnd) =
         c1:<|c1s = player1 rnd
         c2:<|c2s = player2 rnd
 
+part1 :: String -> Int
+part1 input = playGame (parseFile input)
+
 part2 :: String -> Int
 part2 input =
-    playGame2 $ Round { history = M.empty, player1 = deck1, player2 = deck2 }
+    playGame2 deck1 deck2
     where
         (deck1, deck2) = parseFile input
         
 main :: IO ()
 main = do
     content <- readFile "test/data/day-22-input.txt"
-    print $ playGame (parseFile content)
+    print $ part1 content
     print $ part2 content
