@@ -36,6 +36,7 @@ library
       base >=4.7 && <5
     , regex-tdfa
     , containers
+    , unordered-containers
     , extra
     , text
     , megaparsec
